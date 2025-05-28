@@ -407,7 +407,6 @@ class DragSelectGridViewState extends State<DragSelectGridView>
   }
 
   void _notifySelectionChange() {
-    log('changesssss');
     _gridController?.value = Selection(_selectionManager.selectedIndexes);
     widget.onChanged?.call(_selectionManager.selectedIndexes);
   }
