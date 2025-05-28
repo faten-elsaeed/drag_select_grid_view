@@ -18,6 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import 'dart:developer';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -76,7 +77,7 @@ class DragSelectGridView extends StatefulWidget {
     double? autoScrollHotspotHeight,
     ScrollController? scrollController,
     this.gridController,
-    this.triggerSelectionOnTap = false,
+    this.triggerSelectionOnTap = true,
     this.reverse = false,
     this.primary,
     this.physics,
@@ -95,6 +96,7 @@ class DragSelectGridView extends StatefulWidget {
     this.restorationId,
     this.clipBehavior = Clip.hardEdge,
     this.impliesAppBarDismissal = true,
+    this.onChanged,
   })  : autoScrollHotspotHeight =
             autoScrollHotspotHeight ?? defaultAutoScrollHotspotHeight,
         scrollController = scrollController ?? ScrollController(),
@@ -186,6 +188,9 @@ class DragSelectGridView extends StatefulWidget {
 
   /// Refer to [LocalHistoryEntry.impliesAppBarDismissal].
   final bool impliesAppBarDismissal;
+
+  ///
+  final Function(Set<int> selected)? onChanged;
 
   @override
   DragSelectGridViewState createState() => DragSelectGridViewState();
@@ -358,29 +363,29 @@ class DragSelectGridViewState extends State<DragSelectGridView>
   }
 
   void _updateLocalHistory() {
-    final route = ModalRoute.of(context);
-    if (route == null) return;
-
-    if (isSelecting) {
-      if (_historyEntry == null) {
-        final entry = LocalHistoryEntry(
-          impliesAppBarDismissal: widget.impliesAppBarDismissal,
-          onRemove: () {
-            setState(_selectionManager.clear);
-            _notifySelectionChange();
-            _historyEntry = null;
-          },
-        );
-        route.addLocalHistoryEntry(entry);
-        _historyEntry = entry;
-      }
-    } else {
-      final entry = _historyEntry;
-      if (entry != null) {
-        route.removeLocalHistoryEntry(entry);
-        _historyEntry = null;
-      }
-    }
+    // final route = ModalRoute.of(context);
+    // if (route == null) return;
+    //
+    // if (isSelecting) {
+    //   if (_historyEntry == null) {
+    //     final entry = LocalHistoryEntry(
+    //       impliesAppBarDismissal: widget.impliesAppBarDismissal,
+    //       onRemove: () {
+    //         setState(_selectionManager.clear);
+    //         _notifySelectionChange();
+    //         _historyEntry = null;
+    //       },
+    //     );
+    //     route.addLocalHistoryEntry(entry);
+    //     _historyEntry = entry;
+    //   }
+    // } else {
+    //   final entry = _historyEntry;
+    //   if (entry != null) {
+    //     route.removeLocalHistoryEntry(entry);
+    //     _historyEntry = null;
+    //   }
+    // }
   }
 
   int _findIndexOfSelectable(Offset offset) {
@@ -402,6 +407,8 @@ class DragSelectGridViewState extends State<DragSelectGridView>
   }
 
   void _notifySelectionChange() {
+    log('changesssss');
     _gridController?.value = Selection(_selectionManager.selectedIndexes);
+    widget.onChanged?.call(_selectionManager.selectedIndexes);
   }
 }
