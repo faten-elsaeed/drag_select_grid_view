@@ -198,7 +198,7 @@ class DragSelectGridViewState extends State<DragSelectGridView>
     with AutoScrollerMixin<DragSelectGridView> {
   final _elements = <SelectableElement>{};
   final _selectionManager = SelectionManager();
-  LongPressMoveUpdateDetails? _lastMoveUpdateDetails;
+  DragUpdateDetails? _lastMoveUpdateDetails;
   LocalHistoryEntry? _historyEntry;
 
   DragSelectGridViewController? get _gridController => widget.gridController;
@@ -223,7 +223,7 @@ class DragSelectGridViewState extends State<DragSelectGridView>
   @override
   void handleScroll() {
     final details = _lastMoveUpdateDetails;
-    if (details != null) _handleLongPressMoveUpdate(details);
+    if (details != null) _handlePanMoveUpdate(details);
   }
 
   @override
@@ -247,9 +247,9 @@ class DragSelectGridViewState extends State<DragSelectGridView>
     super.build(context);
     return GestureDetector(
       onTapUp: _handleTapUp,
-      onLongPressStart: _handleLongPressStart,
-      onLongPressMoveUpdate: _handleLongPressMoveUpdate,
-      onLongPressEnd: _handleLongPressEnd,
+      onPanStart: _handlePanStart,
+      onPanUpdate: _handlePanMoveUpdate,
+      onPanEnd: _handlePanEnd,
       behavior: HitTestBehavior.translucent,
       child: IgnorePointer(
         ignoring: isDragging,
@@ -314,7 +314,7 @@ class DragSelectGridViewState extends State<DragSelectGridView>
     }
   }
 
-  void _handleLongPressStart(LongPressStartDetails details) {
+  void _handlePanStart(DragStartDetails details) {
     final pressIndex = _findIndexOfSelectable(details.localPosition);
 
     if (pressIndex != -1) {
@@ -324,7 +324,7 @@ class DragSelectGridViewState extends State<DragSelectGridView>
     }
   }
 
-  void _handleLongPressMoveUpdate(LongPressMoveUpdateDetails details) {
+  void _handlePanMoveUpdate(DragUpdateDetails details) {
     if (!isDragging) return;
 
     _lastMoveUpdateDetails = details;
@@ -352,7 +352,7 @@ class DragSelectGridViewState extends State<DragSelectGridView>
     }
   }
 
-  void _handleLongPressEnd(LongPressEndDetails details) {
+  void _handlePanEnd(DragEndDetails details) {
     setState(_selectionManager.endDrag);
     stopScrolling();
   }
